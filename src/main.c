@@ -45,10 +45,34 @@ int initGame(tabsprite* tab) {
     printf("%s\n", SDL_GetError());
     return ERRORVALUE;
   }
+  (tab->floor).surface =  SDL_CreateRGBSurface(SDL_HWSURFACE, XDIMGAME, HDIMGAME-298, 32, 0, 0, 0, 0);    // Create the floor
   (tab->box).surface = NULL;
   (tab->robot).surface = NULL;
+  ((tab->game).position).x = 0;
+  ((tab->game).position).y = 0;
+  ((tab->floor).position).x = 0;
+  ((tab->floor).position).y = 298;
+  ((tab->box).position).x = 165;
+  ((tab->box).position).y = 227;
+  SDL_FillRect((tab->game).surface, NULL, SDL_MapRGB(((tab->game).surface)->format, 255, 255, 255)); // General background of the SDL window
+  SDL_FillRect((tab->floor).surface, NULL, SDL_MapRGB(((tab->game).surface)->format, 127, 127, 127));     // Fix the parameters of the floor
+
   return 0;
 }
+
+
+
+void updateWindow(tabsprite* tab) {
+  SDL_FillRect((tab->game).surface, NULL, SDL_MapRGB(((tab->game).surface)->format, 255, 255, 255)); // General background of the SDL window
+  SDL_FillRect((tab->floor).surface, NULL, SDL_MapRGB(((tab->game).surface)->format, 127, 127, 127));     // Fix the parameters of the floor
+  SDL_BlitSurface((tab->game).surface, NULL, (tab->game).surface, &((tab->game).position));       // Add the background to the SDL window
+  SDL_BlitSurface((tab->floor).surface, NULL, (tab->game).surface, &((tab->floor).position));      // Add the floor to the SDL window
+  SDL_BlitSurface((tab->box).surface, NULL, (tab->game).surface, &((tab->box).position));        // Add the box surface to the SDL window
+  SDL_SetColorKey((tab->robot).surface, SDL_SRCCOLORKEY, SDL_MapRGB(((tab->robot).surface)->format, 255, 51, 153));
+  SDL_BlitSurface((tab->robot).surface, NULL, (tab->game).surface, &((tab->robot).position));
+  SDL_Flip((tab->game).surface);       // Update the game window
+}
+
 
 
 
@@ -58,6 +82,7 @@ int initGame(tabsprite* tab) {
 void finishGame(tabsprite* tab) {
   SDL_FreeSurface((tab->box).surface);
   SDL_FreeSurface((tab->robot).surface);
+  SDL_FreeSurface((tab->floor).surface);
   SDL_FreeSurface((tab->game).surface);
   SDL_Quit();
 }
@@ -75,6 +100,7 @@ int main() {
   if (code < 0) {
     SDL_FreeSurface((tab.box).surface);
     SDL_FreeSurface((tab.robot).surface);
+    SDL_FreeSurface((tab.floor).surface);
     SDL_FreeSurface((tab.game).surface);
     puts("An error has occured");
     exit(EXIT_FAILURE);
