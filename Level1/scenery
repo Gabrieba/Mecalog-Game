@@ -1,0 +1,6 @@
+# Level1 - Scenery sprites
+4
+0 0 1150 650      // Ecran
+0 298 1150 352    // Floor
+100 200 38 97     // Robot
+630 140 100 10    // Test
