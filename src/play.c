@@ -80,13 +80,51 @@ int conflictY(sprite anime, sprite object) {
 // Checks if there is a collision between hitboxes along X axis and with robot shifting to the left direction
 // Update current robot position
 void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting) {
-  int i;
+  int i, j;
   for (i = 0; i < tabBlocs->number; i++) {
     if (  (conflictY((tabScenery->tab)[2], (tabBlocs->tab)[i]) == 1) &&
           ((tabScenery->tab)[2].position.x - shifting <= (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx) &&
           ((tabScenery->tab)[2].position.x + (tabScenery->tab)[2].dimx > (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx)
        ) {
-         (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx;
+         for (j = 0; j < tabBlocs->number; j++) {
+           if ( j != i && conflictY((tabBlocs->tab)[j], (tabScenery->tab)[2]) &&
+              ((tabScenery->tab)[2].position.x - shifting <= (tabBlocs->tab)[j].position.x + (tabBlocs->tab)[j].dimx) &&
+              ((tabScenery->tab)[2].position.x + (tabScenery->tab)[2].dimx > (tabBlocs->tab)[j].position.x + (tabBlocs->tab)[j].dimx))
+           {                                // If the robot is colliding with two blocs at the same time (blocs i and j)
+             (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx;
+             return;
+           }
+           if (j != i && conflictX((tabBlocs->tab)[i], (tabBlocs->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabBlocs->tab)[j])) {
+             (tabBlocs->tab)[i].position.x = (tabBlocs->tab)[j].position.x + (tabBlocs->tab)[j].dimx;
+             (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx;
+             return;
+           }
+         }
+         for (j = 1; j < tabScenery->number; j++) {
+           if (j != 2 && conflictY((tabScenery->tab)[2], (tabScenery->tab)[j]) &&
+              ((tabScenery->tab)[2].position.x - shifting <= (tabScenery->tab)[j].position.x + (tabScenery->tab)[j].dimx) &&
+              ((tabScenery->tab)[2].position.x + (tabScenery->tab)[2].dimx > (tabScenery->tab)[j].position.x + (tabScenery->tab)[j].dimx)
+            ) {
+              (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx;
+              return;
+            }
+           if (j != 2 && conflictX((tabBlocs->tab)[i], (tabScenery->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabScenery->tab)[j])) {
+             (tabBlocs->tab)[i].position.x = (tabScenery->tab)[j].position.x + (tabScenery->tab)[j].dimx + 2;
+             (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx;
+             return;
+           }
+         }
+         (tabScenery->tab)[2].position.x --;
+         (tabBlocs->tab)[i].position.x --;
+         return;
+       }
+  }
+  for (i = 0; i < tabScenery->number; i++) {
+    if ( i != 0 && i != 2 && (conflictY((tabScenery->tab)[2], (tabScenery->tab)[i]) == 1) &&
+          ((tabScenery->tab)[2].position.x - shifting <= (tabScenery->tab)[i].position.x + (tabScenery->tab)[i].dimx) &&
+          ((tabScenery->tab)[2].position.x + (tabScenery->tab)[2].dimx > (tabScenery->tab)[i].position.x + (tabScenery->tab)[i].dimx)
+       ) {
+         (tabScenery->tab)[2].position.x = (tabScenery->tab)[i].position.x + (tabScenery->tab)[i].dimx;
          return;
        }
   }
@@ -98,15 +136,53 @@ void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButto
 
 
 // Checks if there is a collision between hitboxes along X axis and with robot shifting to the right direction
-// Update current robot position
+// Update current robot position and boxes position
 void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting) {
-  int i;
+  int i, j;
   for (i = 0; i < tabBlocs->number; i++) {
     if (  (conflictY((tabScenery->tab)[2], (tabBlocs->tab)[i]) == 1) &&
           ((tabScenery->tab)[2].position.x + (tabScenery->tab)[2].dimx + shifting >= (tabBlocs->tab)[i].position.x) &&
           ((tabScenery->tab)[2].position.x < (tabBlocs->tab)[i].position.x)
        ) {
-         (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x - (tabScenery->tab)[2].dimx;
+         for (j = 0; j < tabBlocs->number; j++) {
+           if ( j != i && conflictY((tabScenery->tab)[2], (tabBlocs->tab)[j]) &&
+                 ((tabScenery->tab)[2].position.x + (tabScenery->tab)[2].dimx + shifting >= (tabBlocs->tab)[j].position.x) &&
+                 ((tabScenery->tab)[2].position.x < (tabBlocs->tab)[j].position.x)
+              ) {         // If the robot is colliding with two blocs at the same time (blocs i and j)
+                (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x - (tabScenery->tab)[2].dimx;
+                return;
+              }
+           if (j != i && conflictX((tabBlocs->tab)[i], (tabBlocs->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabBlocs->tab)[j]) ) {
+             (tabBlocs->tab)[i].position.x = (tabBlocs->tab)[j].position.x - (tabBlocs->tab)[i].dimx;
+             (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x - (tabScenery->tab)[2].dimx;
+             return;
+           }
+         }
+         for (j = 1; j < tabScenery->number; j++) {
+           if (j != 2 && conflictY((tabScenery->tab)[2], (tabScenery->tab)[j]) &&
+              ((tabScenery->tab)[2].position.x + (tabScenery->tab)[2].dimx + shifting >= (tabScenery->tab)[j].position.x) &&
+              ((tabScenery->tab)[2].position.x < (tabScenery->tab)[j].position.x)
+            ) {       // if the robot is colliding with a bloc and a scenaristic element at the same time
+              (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x - (tabScenery->tab)[2].dimx;
+              return;
+            }
+           if (j != 2 && conflictX((tabBlocs->tab)[i], (tabScenery->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabScenery->tab)[j])) {
+             (tabBlocs->tab)[i].position.x = (tabScenery->tab)[j].position.x - (tabBlocs->tab)[j].dimx - 2;
+             (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x - (tabScenery->tab)[2].dimx;
+             return;
+           }
+         }
+         (tabScenery->tab)[2].position.x ++;
+         (tabBlocs->tab)[i].position.x ++;
+         return;
+       }
+  }
+  for (i = 0; i < tabScenery->number; i++) {
+    if ( i != 0 && i != 2 && (conflictY((tabScenery->tab)[2], (tabScenery->tab)[i]) == 1) &&
+          ((tabScenery->tab)[2].position.x + (tabScenery->tab)[2].dimx + shifting >= (tabScenery->tab)[i].position.x) &&
+          ((tabScenery->tab)[2].position.x < (tabScenery->tab)[i].position.x)
+       ) {
+         (tabScenery->tab)[2].position.x = (tabScenery->tab)[i].position.x - (tabScenery->tab)[2].dimx;
          return;
        }
   }

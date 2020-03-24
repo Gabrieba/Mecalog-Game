@@ -150,6 +150,7 @@ int initGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons) 
 
   ((tabScenery->tab)[1]).surface =  SDL_CreateRGBSurface(SDL_HWSURFACE, ((tabScenery->tab)[1]).dimx, ((tabScenery->tab)[1]).dimy, 32, 0, 0, 0, 0);    // Create the floor
   ((tabScenery->tab)[3]).surface =  SDL_CreateRGBSurface(SDL_HWSURFACE, ((tabScenery->tab)[3]).dimx, ((tabScenery->tab)[3]).dimy, 32, 0, 0, 0, 0);    // Test
+  ((tabScenery->tab)[4]).surface =  SDL_CreateRGBSurface(SDL_HWSURFACE, ((tabScenery->tab)[4]).dimx, ((tabScenery->tab)[4]).dimy, 32, 0, 0, 0, 0);    // Test
 
   return 0;
 }
@@ -163,6 +164,7 @@ void updateWindow(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButt
   SDL_FillRect(((tabScenery->tab)[0]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[0]).surface->format, 255, 255, 255)); // General background of the SDL window
   SDL_FillRect(((tabScenery->tab)[1]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[1]).surface->format, 127, 127, 127));     // Fix the parameters of the floor
   SDL_FillRect(((tabScenery->tab)[3]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[3]).surface->format, 127, 127, 127));
+  SDL_FillRect(((tabScenery->tab)[4]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[4]).surface->format, 127, 127, 127));
   SDL_SetColorKey(((tabScenery->tab)[2]).surface, SDL_SRCCOLORKEY, SDL_MapRGB((((tabScenery->tab)[2]).surface)->format, 255, 51, 153));
 
   // Add scenaristic elements to the SDL window
