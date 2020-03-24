@@ -19,6 +19,14 @@ typedef struct {  SDL_Surface* surface;
                   SDL_Rect position;
                   int dimx;
                   int dimy;
+                  int activated;
+               } plateform;
+
+
+typedef struct {  SDL_Surface* surface;
+                  SDL_Rect position;
+                  int dimx;
+                  int dimy;
                } sprite;
 
 
@@ -48,6 +56,7 @@ void pauseSDL(void);
 void inputEvent(char** keytab);
 int conflictX(sprite anime, sprite object);
 int conflictY(sprite anime, sprite object);
+void gravityBlocks(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting);
 void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting);
 void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting);
 void hitbox_DownY(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting);

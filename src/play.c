@@ -53,8 +53,8 @@ int conflictX(sprite anime, sprite object) {
   if ((anime.position).x + anime.dimx > (object.position).x &&
       (anime.position).x + anime.dimx < (object.position).x + object.dimx)
     return 1;
-  if ((anime.position).x < (object.position).x &&
-      (anime.position).x + anime.dimx > (object.position).x + object.dimx)
+  if ((anime.position).x <= (object.position).x &&
+      (anime.position).x + anime.dimx >= (object.position).x + object.dimx)
     return 1;
   return 0;
 }
@@ -76,9 +76,52 @@ int conflictY(sprite anime, sprite object) {
 
 
 
+// Compute new y position for all blocks
+void gravityBlocks(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting) {
+  int i, j, bit; int motionless = 0; int k = 0;
+  int time[25] = {10, 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 14, 14, 14, 16, 16, 17, 18, 20, 21, 24, 27, 32, 32, 32};    // To make the jump more harmonic (reverse square function)
+  while (motionless == 0) {
+    motionless = 1;
+    for (i = 0; i < tabBlocs->number; i++) {
+      bit = 0;
+      for (j = 0; j < tabBlocs->number; j++) {
+
+        if (j != i && conflictX((tabBlocs->tab)[i], (tabBlocs->tab)[j]) &&
+          (tabBlocs->tab)[i].position.y + (tabBlocs->tab)[i].dimy + shifting >= (tabBlocs->tab)[j].position.y &&
+          (tabBlocs->tab)[i].position.y < (tabBlocs->tab)[j].position.y
+        ) {                     // A block j directly under the block i
+          (tabBlocs->tab)[i].position.y = (tabBlocs->tab)[j].position.y - (tabBlocs->tab)[i].dimy - 1;
+          bit = 1;
+        }
+      }
+
+      if (bit != 1) {
+        for (j = 1; j < tabScenery->number; j++) {      // Conflict between block i and scenaristic element j
+          if (j != 2 && conflictX((tabBlocs->tab)[i], (tabScenery->tab)[j]) &&
+            (tabBlocs->tab)[i].position.y + (tabBlocs->tab)[i].dimy + shifting >= (tabScenery->tab)[j].position.y &&
+            (tabBlocs->tab)[i].position.y < (tabScenery->tab)[j].position.y
+          ) {                     // Scenery element directly under the block
+            (tabBlocs->tab)[i].position.y = (tabScenery->tab)[j].position.y - (tabBlocs->tab)[i].dimy - 1;
+            bit = 1;
+          }
+        }
+      }
+      if (bit == 0) {
+        (tabBlocs->tab)[i].position.y += shifting;
+        motionless = 0;
+      }
+    }
+//    SDL_Delay(time[24-k]);
+    if (k < 24)
+      k++;
+  }
+}
+
+
+
 
 // Checks if there is a collision between hitboxes along X axis and with robot shifting to the left direction
-// Update current robot position
+// Update current robot position and blocks position
 void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting) {
   int i, j;
   for (i = 0; i < tabBlocs->number; i++) {
@@ -97,6 +140,7 @@ void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButto
            if (j != i && conflictX((tabBlocs->tab)[i], (tabBlocs->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabBlocs->tab)[j])) {
              (tabBlocs->tab)[i].position.x = (tabBlocs->tab)[j].position.x + (tabBlocs->tab)[j].dimx;
              (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx;
+             gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
              return;
            }
          }
@@ -111,11 +155,13 @@ void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButto
            if (j != 2 && conflictX((tabBlocs->tab)[i], (tabScenery->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabScenery->tab)[j])) {
              (tabBlocs->tab)[i].position.x = (tabScenery->tab)[j].position.x + (tabScenery->tab)[j].dimx + 2;
              (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx;
+             gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
              return;
            }
          }
-         (tabScenery->tab)[2].position.x --;
-         (tabBlocs->tab)[i].position.x --;
+         (tabScenery->tab)[2].position.x -= 3;
+         (tabBlocs->tab)[i].position.x -= 3;
+         gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
          return;
        }
   }
@@ -136,7 +182,7 @@ void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButto
 
 
 // Checks if there is a collision between hitboxes along X axis and with robot shifting to the right direction
-// Update current robot position and boxes position
+// Update current robot position and blocks position
 void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting) {
   int i, j;
   for (i = 0; i < tabBlocs->number; i++) {
@@ -155,6 +201,7 @@ void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButt
            if (j != i && conflictX((tabBlocs->tab)[i], (tabBlocs->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabBlocs->tab)[j]) ) {
              (tabBlocs->tab)[i].position.x = (tabBlocs->tab)[j].position.x - (tabBlocs->tab)[i].dimx;
              (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x - (tabScenery->tab)[2].dimx;
+             gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
              return;
            }
          }
@@ -169,11 +216,13 @@ void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButt
            if (j != 2 && conflictX((tabBlocs->tab)[i], (tabScenery->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabScenery->tab)[j])) {
              (tabBlocs->tab)[i].position.x = (tabScenery->tab)[j].position.x - (tabBlocs->tab)[j].dimx - 2;
              (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x - (tabScenery->tab)[2].dimx;
+             gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
              return;
            }
          }
-         (tabScenery->tab)[2].position.x ++;
-         (tabBlocs->tab)[i].position.x ++;
+         (tabScenery->tab)[2].position.x += 3;
+         (tabBlocs->tab)[i].position.x += 3;
+         gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
          return;
        }
   }
