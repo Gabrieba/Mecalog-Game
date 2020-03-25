@@ -9,7 +9,7 @@
 
 // Display the welcoming page before the game starts
 // Return ERRORVALUE if an error has occured, 0 otherwise
-int welcomeGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons) {
+int welcomeGame(tabsprite* tabBlocs, tabsprite* tabScenery) {
 
   return 0;
 }

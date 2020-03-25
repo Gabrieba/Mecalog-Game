@@ -77,7 +77,7 @@ int conflictY(sprite anime, sprite object) {
 
 
 // Compute new y position for all blocks
-void gravityBlocks(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting) {
+void gravityBlocks(tabsprite* tabBlocs, tabsprite* tabScenery, int shifting) {
   int i, j, bit; int motionless = 0; int k = 0;
   int time[25] = {10, 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 14, 14, 14, 16, 16, 17, 18, 20, 21, 24, 27, 32, 32, 32};    // To make the jump more harmonic (reverse square function)
   while (motionless == 0) {
@@ -122,7 +122,7 @@ void gravityBlocks(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabBut
 
 // Checks if there is a collision between hitboxes along X axis and with robot shifting to the left direction
 // Update current robot position and blocks position
-void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting) {
+void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, int shifting) {
   int i, j;
   for (i = 0; i < tabBlocs->number; i++) {
     if (  (conflictY((tabScenery->tab)[2], (tabBlocs->tab)[i]) == 1) &&
@@ -140,7 +140,7 @@ void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButto
            if (j != i && conflictX((tabBlocs->tab)[i], (tabBlocs->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabBlocs->tab)[j])) {
              (tabBlocs->tab)[i].position.x = (tabBlocs->tab)[j].position.x + (tabBlocs->tab)[j].dimx;
              (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx;
-             gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
+             gravityBlocks(tabBlocs, tabScenery, 4);
              return;
            }
          }
@@ -155,13 +155,13 @@ void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButto
            if (j != 2 && conflictX((tabBlocs->tab)[i], (tabScenery->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabScenery->tab)[j])) {
              (tabBlocs->tab)[i].position.x = (tabScenery->tab)[j].position.x + (tabScenery->tab)[j].dimx + 2;
              (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x + (tabBlocs->tab)[i].dimx;
-             gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
+             gravityBlocks(tabBlocs, tabScenery, 4);
              return;
            }
          }
          (tabScenery->tab)[2].position.x -= 3;
          (tabBlocs->tab)[i].position.x -= 3;
-         gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
+         gravityBlocks(tabBlocs, tabScenery, 4);
          return;
        }
   }
@@ -183,7 +183,7 @@ void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButto
 
 // Checks if there is a collision between hitboxes along X axis and with robot shifting to the right direction
 // Update current robot position and blocks position
-void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting) {
+void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, int shifting) {
   int i, j;
   for (i = 0; i < tabBlocs->number; i++) {
     if (  (conflictY((tabScenery->tab)[2], (tabBlocs->tab)[i]) == 1) &&
@@ -201,7 +201,7 @@ void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButt
            if (j != i && conflictX((tabBlocs->tab)[i], (tabBlocs->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabBlocs->tab)[j]) ) {
              (tabBlocs->tab)[i].position.x = (tabBlocs->tab)[j].position.x - (tabBlocs->tab)[i].dimx;
              (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x - (tabScenery->tab)[2].dimx;
-             gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
+             gravityBlocks(tabBlocs, tabScenery, 4);
              return;
            }
          }
@@ -216,13 +216,13 @@ void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButt
            if (j != 2 && conflictX((tabBlocs->tab)[i], (tabScenery->tab)[j]) && conflictY((tabBlocs->tab)[i], (tabScenery->tab)[j])) {
              (tabBlocs->tab)[i].position.x = (tabScenery->tab)[j].position.x - (tabBlocs->tab)[j].dimx - 2;
              (tabScenery->tab)[2].position.x = (tabBlocs->tab)[i].position.x - (tabScenery->tab)[2].dimx;
-             gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
+             gravityBlocks(tabBlocs, tabScenery, 4);
              return;
            }
          }
          (tabScenery->tab)[2].position.x += 3;
          (tabBlocs->tab)[i].position.x += 3;
-         gravityBlocks(tabBlocs, tabScenery, tabButtons, 4);
+         gravityBlocks(tabBlocs, tabScenery, 4);
          return;
        }
   }
@@ -244,7 +244,7 @@ void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButt
 
 // Checks if there is a collision between hitboxes along Y axis and with robot shifting to the down direction
 // Update current robot position
-void hitbox_DownY(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting) {
+void hitbox_DownY(tabsprite* tabBlocs, tabsprite* tabScenery, int shifting) {
   int i;
   if ((tabScenery->tab)[2].position.y + (tabScenery->tab)[2].dimy + shifting >= HDIMGAME) {
     (tabScenery->tab)[2].position.y = HDIMGAME + (tabScenery->tab)[2].dimy;
@@ -276,7 +276,7 @@ void hitbox_DownY(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButt
 
 // Checks if there is a collision between hitboxes along Y axis and with robot shifting to the up direction
 // Update current robot position
-void hitbox_UpY(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting) {
+void hitbox_UpY(tabsprite* tabBlocs, tabsprite* tabScenery, int shifting) {
   int i;
   if ((tabScenery->tab)[2].position.y - shifting <= 0) {
     (tabScenery->tab)[2].position.y = 0;
@@ -306,15 +306,39 @@ void hitbox_UpY(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButton
 
 
 
+// Activate or not platforms
+void plateformAnimation(tabsprite tabBlocs, tabplat* tabButtons) {
+  int i, j, bit;
+  for (j = 0; j < tabButtons->number; j++) {
+    bit = 0;
+    for (i = 0; i < tabBlocs.number; i++) {
+      if ((tabBlocs.tab)[i].position.x >= (tabButtons->tab)[j].position.x &&
+          (tabBlocs.tab)[i].position.x + (tabBlocs.tab)[i].dimx <= (tabButtons->tab)[j].position.x + (tabButtons->tab)[j].dimx &&
+          (tabBlocs.tab)[i].position.y + (tabBlocs.tab)[i].dimy + 2 >= (tabButtons->tab)[j].position.y
+        ) {
+          (tabButtons->tab)[j].surface = SDL_LoadBMP("img/plateforme_on.bmp");
+          (tabButtons->tab)[j].activated = 1;
+          bit = 1;
+          }
+    }
+    if (bit == 0) {
+      (tabButtons->tab)[j].surface = SDL_LoadBMP("img/plateforme_off.bmp");
+      (tabButtons->tab)[j].activated = 0;
+    }
+  }
+}
+
+
+
 
 // Allows the player to move downwards if it is possible
-void jumpDownAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, char** inputKey) {
+void jumpDownAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons, char** inputKey) {
   SDL_Event event;
   int code, j; int i = 0; int previousy = -10;
   int time[25] = {10, 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 14, 14, 14, 16, 16, 17, 18, 20, 21, 24, 27, 32, 41, 70};    // To make the jump more harmonic (reverse square function)
   while (previousy != ((tabScenery->tab)[2]).position.y) {
     previousy = ((tabScenery->tab)[2]).position.y;
-    hitbox_DownY(tabBlocs, tabScenery, tabButtons, 4);
+    hitbox_DownY(tabBlocs, tabScenery, 4);
 
     if (i < 24)
       i++;
@@ -324,11 +348,11 @@ void jumpDownAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* ta
       return;
     if ((*inputKey)[SDLK_LEFT] == 1) {
       ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_left.bmp");   // Load the robot surface oriented to the left
-      hitboxLeftX(tabBlocs, tabScenery, tabButtons, 4);
+      hitboxLeftX(tabBlocs, tabScenery, 4);
     }
     if ((*inputKey)[SDLK_RIGHT] == 1) {
       ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_right.bmp");   // Load the robot surface oriented to the right
-      hitboxRightX(tabBlocs, tabScenery, tabButtons, 4);
+      hitboxRightX(tabBlocs, tabScenery, 4);
     }
     updateWindow(tabBlocs, tabScenery, tabButtons);
     SDL_Delay(time[24-i]);
@@ -340,22 +364,22 @@ void jumpDownAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* ta
 
 
 // Allows the player to move downwards if it is possible, until a hard surface is encountered
-void jumpUpAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, char** inputKey) {
+void jumpUpAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons, char** inputKey) {
   SDL_Event event;
   int i, code;
   int time[25] = {10, 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 14, 14, 14, 16, 16, 17, 18, 20, 21, 24, 27, 32, 41, 70};    // To make the jump more harmonic (reverse square function)
   for (i = 0; i < 25; i++) {
-    hitbox_UpY(tabBlocs, tabScenery, tabButtons, 4);
+    hitbox_UpY(tabBlocs, tabScenery, 4);
     inputEvent(inputKey);
     if ((*inputKey)[SDLK_ESCAPE] == 1)
       return;
     if ((*inputKey)[SDLK_LEFT] == 1) {
       ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_left.bmp");   // Load the robot surface oriented to the left
-      hitboxLeftX(tabBlocs, tabScenery, tabButtons, 4);
+      hitboxLeftX(tabBlocs, tabScenery, 4);
     }
     if ((*inputKey)[SDLK_RIGHT] == 1) {
       ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_right.bmp");   // Load the robot surface oriented to the right
-      hitboxRightX(tabBlocs, tabScenery, tabButtons, 4);
+      hitboxRightX(tabBlocs, tabScenery, 4);
     }
     updateWindow(tabBlocs, tabScenery, tabButtons);
     SDL_Delay(time[i]);
@@ -367,7 +391,7 @@ void jumpUpAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabB
 
 // Principal player control code
 // Return ERRORVALUE if an error has occured, 0 otherwise
-int playGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons) {
+int playGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons) {
   SDL_Event event;
   char* inputKey;
   int code;
@@ -392,13 +416,15 @@ int playGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons) 
     }
     if (inputKey[SDLK_LEFT] == 1) {
       ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_left.bmp");   // Load the robot surface oriented to the left
-      hitboxLeftX(tabBlocs, tabScenery, tabButtons, 6);
+      hitboxLeftX(tabBlocs, tabScenery, 6);
       jumpDownAnimation(tabBlocs, tabScenery, tabButtons, &inputKey);
+      plateformAnimation(*tabBlocs, tabButtons);
     }
     if (inputKey[SDLK_RIGHT] == 1) {
       ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_right.bmp");   // Load the robot surface oriented to the right
-      hitboxRightX(tabBlocs, tabScenery, tabButtons, 6);
+      hitboxRightX(tabBlocs, tabScenery, 6);
       jumpDownAnimation(tabBlocs, tabScenery, tabButtons, &inputKey);
+      plateformAnimation(*tabBlocs, tabButtons);
     }
     updateWindow(tabBlocs, tabScenery, tabButtons);
 

@@ -34,6 +34,10 @@ typedef struct{ sprite* tab;
                 int number;
               } tabsprite;
 
+typedef struct{
+              plateform* tab;
+              int number;
+            } tabplat;
 
 
 
@@ -41,14 +45,13 @@ typedef struct{ sprite* tab;
 void errorMSG(char* msg);
 void warningMSG(char* msg);
 void infoMSG(char* msg);
-int initGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons);
-void updateWindow(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons);
-int welcomeGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons);
-void finishGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons);
+int initGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons);
+void updateWindow(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons);
+void finishGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons);
 
 
 // Function prototypes welcome.h
-int welcomeGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons);
+int welcomeGame(tabsprite* tabBlocs, tabsprite* tabScenery);
 
 
 // Function prototypes play.h
@@ -56,11 +59,12 @@ void pauseSDL(void);
 void inputEvent(char** keytab);
 int conflictX(sprite anime, sprite object);
 int conflictY(sprite anime, sprite object);
-void gravityBlocks(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting);
-void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting);
-void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting);
-void hitbox_DownY(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting);
-void hitbox_UpY(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int shifting);
-int playGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons);
-void jumpUpAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, char** inputKey);
-void jumpDownAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, char** inputKey);
+void plateformAnimation(tabsprite tabBlocs, tabplat* tabButtons);
+void gravityBlocks(tabsprite* tabBlocs, tabsprite* tabScenery, int shifting);
+void hitboxLeftX(tabsprite* tabBlocs, tabsprite* tabScenery, int shifting);
+void hitboxRightX(tabsprite* tabBlocs, tabsprite* tabScenery, int shifting);
+void hitbox_DownY(tabsprite* tabBlocs, tabsprite* tabScenery, int shifting);
+void hitbox_UpY(tabsprite* tabBlocs, tabsprite* tabScenery, int shifting);
+int playGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons);
+void jumpUpAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons, char** inputKey);
+void jumpDownAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons, char** inputKey);

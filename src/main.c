@@ -31,7 +31,7 @@ void infoMSG(char* msg) {
 
 // Load Data from .txt file
 // Return ERRORVALUE if an error has occured, 0 otherwise
-int loadData(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, int level) {
+int loadData(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons, int level) {
   FILE* fp;
   char folder[25];
   char buffer[50];
@@ -95,6 +95,7 @@ int loadData(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, 
     (tabButtons->tab)[i].position.y = positiony;
     (tabButtons->tab)[i].dimx = dimx;
     (tabButtons->tab)[i].dimy = dimy;
+    (tabButtons->tab)[i].activated = 0;
   }
   fclose(fp);
   folder[7] = '\0';     // To delete the filename from the char buffer
@@ -127,7 +128,7 @@ int loadData(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons, 
 
 // Initialize the variables for the game
 // Return ERRORVALUE if an error has occured, 0 otherwise
-int initGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons) {
+int initGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons) {
   int i, code;
   for (i = 0; i < tabScenery->number; i++)
     ((tabScenery->tab)[i]).surface = NULL;
@@ -159,7 +160,7 @@ int initGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons) 
 
 
 // Update the SDL window display with new parameters
-void updateWindow(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons) {
+void updateWindow(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons) {
   int i;
   SDL_FillRect(((tabScenery->tab)[0]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[0]).surface->format, 255, 255, 255)); // General background of the SDL window
   SDL_FillRect(((tabScenery->tab)[1]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[1]).surface->format, 127, 127, 127));     // Fix the parameters of the floor
@@ -176,8 +177,13 @@ void updateWindow(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButt
       SDL_BlitSurface(((tabBlocs->tab)[i]).surface, NULL, ((tabScenery->tab)[0]).surface, &(((tabBlocs->tab)[i]).position));
   }
   // Add buttons to the SDL window
-  for (i = 0; i < tabButtons->number; i++)
-      SDL_BlitSurface(((tabButtons->tab)[i]).surface, NULL, ((tabScenery->tab)[0]).surface, &(((tabButtons->tab)[i]).position));
+  for (i = 0; i < tabButtons->number; i++) {
+    if (((tabButtons->tab)[i]).activated == 1)
+      ((tabButtons->tab)[i]).surface = SDL_LoadBMP("img/plateforme_on.bmp");
+    else
+      ((tabButtons->tab)[i]).surface = SDL_LoadBMP("img/plateforme_off.bmp");
+    SDL_BlitSurface(((tabButtons->tab)[i]).surface, NULL, ((tabScenery->tab)[0]).surface, &(((tabButtons->tab)[i]).position));
+  }
 
   SDL_Flip(((tabScenery->tab)[0]).surface);       // Update the game window
 }
@@ -188,7 +194,7 @@ void updateWindow(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButt
 
 // Free the variables when the game is finished
 // Return nothing
-void finishGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButtons) {
+void finishGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons) {
   int i;
   for (i = 0; i < tabBlocs->number; i++) {
     SDL_FreeSurface(((tabBlocs->tab)[i]).surface);
@@ -201,6 +207,7 @@ void finishGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabsprite* tabButton
   }
   free(tabScenery->tab);
   free(tabBlocs->tab);
+  free(tabButtons->tab);
   SDL_Quit();
 }
 
@@ -213,7 +220,7 @@ int main() {
   int code; int i;
   tabsprite tabBlocs;
   tabsprite tabScenery;
-  tabsprite tabButtons;
+  tabplat tabButtons;
 
   tabScenery.tab = calloc(10, sizeof(sprite));
   if (tabScenery.tab == NULL)
@@ -221,6 +228,12 @@ int main() {
   tabBlocs.tab = calloc(10, sizeof(sprite));
   if (tabBlocs.tab == NULL) {
     free(tabScenery.tab);
+    exit(EXIT_FAILURE);
+  }
+  tabButtons.tab = calloc(10, sizeof(plateform));
+  if (tabButtons.tab == NULL) {
+    free(tabScenery.tab);
+    free(tabBlocs.tab);
     exit(EXIT_FAILURE);
   }
   code = loadData(&tabBlocs, &tabScenery, &tabButtons, 1);
@@ -235,7 +248,7 @@ int main() {
     puts("An error has occured");
     exit(EXIT_FAILURE);
   }
-  code = welcomeGame(&tabBlocs, &tabScenery, &tabButtons);
+  code = welcomeGame(&tabBlocs, &tabScenery);
   if (code < 0) {
     puts("An error has occured");
     finishGame(&tabBlocs, &tabScenery, &tabButtons);
