@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -W -Wall -pedantic -ansi
-LDFLAGS = -lreadline -lm -lSDL -lSDL_ttf
+LDFLAGS = -lreadline -lm -lSDL -lSDL_ttf -lfmod
 EXEC = Mecalog
 SRC = $(wildcard src/*.c)
 OBJ = $(SRC: *.c = *.o)
