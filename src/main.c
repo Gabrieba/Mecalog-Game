@@ -64,6 +64,7 @@ int loadData(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons, in
   for (i = 0; i < number; i++) {
     if (fscanf(fp, "%d %d %d %d", &positionx, &positiony, &dimx, &dimy) != 4) {   // Read the data
       errorMSG("Not enough bloc sprites in data files");
+      fclose(fp);
       return ERRORVALUE;
     }
     fgets(buffer, 50, fp);     // To read the name of the sprite and the carriage return
@@ -88,6 +89,7 @@ int loadData(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons, in
   for (i = 0; i < number; i++) {
     if (fscanf(fp, "%d %d %d %d", &positionx, &positiony, &dimx, &dimy) != 4) {   // Read the data
       errorMSG("Not enough button sprites in data files");
+      fclose(fp);
       return ERRORVALUE;
     }
     fgets(buffer, 50, fp);     // To read the name of the sprite and the carriage return
@@ -113,6 +115,7 @@ int loadData(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons, in
   for (i = 0; i < number; i++) {
     if (fscanf(fp, "%d %d %d %d", &positionx, &positiony, &dimx, &dimy) != 4) {   // Read the data
       errorMSG("Not enough scenery sprites in data files");
+      fclose(fp);
       return ERRORVALUE;
     }
     fgets(buffer, 50, fp);     // To read the name of the sprite and the carriage return
@@ -136,22 +139,23 @@ int initGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons) {
     tabBlocs->tab[i].surface = NULL;
   for (i = 0; i < tabButtons->number; i++)
     tabButtons->tab[i].surface = NULL;
-  if (SDL_Init(SDL_INIT_VIDEO) == -1) {
-    errorMSG("Error when initializing the SDL librairy");
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1) {
+    errorMSG("Error when initializing the SDL librairies :");
     printf("%s\n", SDL_GetError());
     return ERRORVALUE;
   }
-  ((tabScenery->tab)[0]).surface = SDL_SetVideoMode(XDIMGAME, HDIMGAME, 32, SDL_SWSURFACE);      // Window mode configuration
+  ((tabScenery->tab)[SCREEN]).surface = SDL_SetVideoMode(XDIMGAME, HDIMGAME, 32, SDL_SWSURFACE);      // Window mode configuration
   SDL_WM_SetCaption("## Mecalog Game ##", NULL);                 // Title of the SDL window
-  if (((tabScenery->tab)[0]).surface == NULL) {
-    errorMSG("Error when opening the SDL window");
+  if (((tabScenery->tab)[SCREEN]).surface == NULL) {
+    errorMSG("Error when opening the SDL window :");
     printf("%s\n", SDL_GetError());
     return ERRORVALUE;
   }
 
-  ((tabScenery->tab)[1]).surface =  SDL_CreateRGBSurface(SDL_HWSURFACE, ((tabScenery->tab)[1]).dimx, ((tabScenery->tab)[1]).dimy, 32, 0, 0, 0, 0);    // Create the floor
-  ((tabScenery->tab)[3]).surface =  SDL_CreateRGBSurface(SDL_HWSURFACE, ((tabScenery->tab)[3]).dimx, ((tabScenery->tab)[3]).dimy, 32, 0, 0, 0, 0);    // Test
-  ((tabScenery->tab)[4]).surface =  SDL_CreateRGBSurface(SDL_HWSURFACE, ((tabScenery->tab)[4]).dimx, ((tabScenery->tab)[4]).dimy, 32, 0, 0, 0, 0);    // Test
+  ((tabScenery->tab)[DOOR]).surface =  SDL_CreateRGBSurface(SDL_HWSURFACE, ((tabScenery->tab)[DOOR]).dimx, ((tabScenery->tab)[DOOR]).dimy, 32, 0, 0, 0, 0);    // Create the door
+  for (i = 3; i < tabScenery->number; i++) {
+    ((tabScenery->tab)[i]).surface =  SDL_CreateRGBSurface(SDL_HWSURFACE, ((tabScenery->tab)[i]).dimx, ((tabScenery->tab)[i]).dimy, 32, 0, 0, 0, 0);    // Create the scenery element
+  }
 
   return 0;
 }
@@ -160,32 +164,44 @@ int initGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons) {
 
 
 // Update the SDL window display with new parameters
+// Return nothing
 void updateWindow(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons) {
-  int i;
-  SDL_FillRect(((tabScenery->tab)[0]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[0]).surface->format, 255, 255, 255)); // General background of the SDL window
-  SDL_FillRect(((tabScenery->tab)[1]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[1]).surface->format, 127, 127, 127));     // Fix the parameters of the floor
-  SDL_FillRect(((tabScenery->tab)[3]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[3]).surface->format, 127, 127, 127));
-  SDL_FillRect(((tabScenery->tab)[4]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[4]).surface->format, 127, 127, 127));
-  SDL_SetColorKey(((tabScenery->tab)[2]).surface, SDL_SRCCOLORKEY, SDL_MapRGB((((tabScenery->tab)[2]).surface)->format, 255, 51, 153));
-
-  // Add scenaristic elements to the SDL window
-  for (i = 0; i < tabScenery->number; i++)
-      SDL_BlitSurface(((tabScenery->tab)[i]).surface, NULL, ((tabScenery->tab)[0]).surface, &(((tabScenery->tab)[i]).position));
-  // Add blocs to the SDL window
-  for (i = 0; i < tabBlocs->number; i++) {
-      ((tabBlocs->tab)[i]).surface = SDL_LoadBMP("img/box.bmp");
-      SDL_BlitSurface(((tabBlocs->tab)[i]).surface, NULL, ((tabScenery->tab)[0]).surface, &(((tabBlocs->tab)[i]).position));
+  int i; int bit = 1;         // Bit = 0 means that at least one platform isn't activated
+  SDL_FillRect(((tabScenery->tab)[SCREEN]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[SCREEN]).surface->format, 255, 255, 255)); // General background of the SDL window
+  SDL_FillRect(((tabScenery->tab)[DOOR]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[DOOR]).surface->format, 100, 100, 100));     // Fix the parameters of the door
+  SDL_SetColorKey(((tabScenery->tab)[ROBOT]).surface, SDL_SRCCOLORKEY, SDL_MapRGB((((tabScenery->tab)[ROBOT]).surface)->format, 255, 51, 153));
+  for (i = 3; i < tabScenery->number; i++) {
+    SDL_FillRect(((tabScenery->tab)[i]).surface, NULL, SDL_MapRGB(((tabScenery->tab)[i]).surface->format, 127, 127, 127));
   }
+
+  for (i = 0; i < tabButtons->number; i++) {      // Check if at least one platform isn't activated
+    if (((tabButtons->tab)[i]).activated == 0) {
+      bit = 0;        // Platform not activated
+      break;
+    }
+  }
+  // Add scenaristic elements to the SDL window
+  for (i = 0; i < tabScenery->number; i++) {
+    if (i != DOOR || (i == DOOR && bit == 0))
+      SDL_BlitSurface(((tabScenery->tab)[i]).surface, NULL, ((tabScenery->tab)[SCREEN]).surface, &(((tabScenery->tab)[i]).position));   // Add scenaristic elements to the SDL window
+  }
+
   // Add buttons to the SDL window
   for (i = 0; i < tabButtons->number; i++) {
     if (((tabButtons->tab)[i]).activated == 1)
       ((tabButtons->tab)[i]).surface = SDL_LoadBMP("img/plateforme_on.bmp");
     else
       ((tabButtons->tab)[i]).surface = SDL_LoadBMP("img/plateforme_off.bmp");
-    SDL_BlitSurface(((tabButtons->tab)[i]).surface, NULL, ((tabScenery->tab)[0]).surface, &(((tabButtons->tab)[i]).position));
+    SDL_BlitSurface(((tabButtons->tab)[i]).surface, NULL, ((tabScenery->tab)[SCREEN]).surface, &(((tabButtons->tab)[i]).position));   // Add platforms to the SDL window
   }
 
-  SDL_Flip(((tabScenery->tab)[0]).surface);       // Update the game window
+  // Add blocs to the SDL window
+  for (i = 0; i < tabBlocs->number; i++) {
+      ((tabBlocs->tab)[i]).surface = SDL_LoadBMP("img/box.bmp");
+      SDL_BlitSurface(((tabBlocs->tab)[i]).surface, NULL, ((tabScenery->tab)[SCREEN]).surface, &(((tabBlocs->tab)[i]).position));     // Add blocs to the SDL window
+  }
+
+  SDL_Flip(((tabScenery->tab)[SCREEN]).surface);       // Update the game window
 }
 
 
@@ -217,12 +233,12 @@ void finishGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons)
 
 // Main code of the game + error handler
 int main() {
-  int code; int i;
+  int code; int i; int continuer = 1;
   tabsprite tabBlocs;
   tabsprite tabScenery;
   tabplat tabButtons;
 
-  tabScenery.tab = calloc(10, sizeof(sprite));
+  tabScenery.tab = calloc(12, sizeof(sprite));
   if (tabScenery.tab == NULL)
     exit(EXIT_FAILURE);
   tabBlocs.tab = calloc(10, sizeof(sprite));
@@ -240,6 +256,7 @@ int main() {
   if (code < 0) {
     free(tabScenery.tab);
     free(tabBlocs.tab);
+    free(tabButtons.tab);
     exit(EXIT_FAILURE);
   }
   code = initGame(&tabBlocs, &tabScenery, &tabButtons);
@@ -248,18 +265,30 @@ int main() {
     puts("An error has occured");
     exit(EXIT_FAILURE);
   }
-  code = welcomeGame(&tabBlocs, &tabScenery);
+//  code = welcomeGame(&tabBlocs, &tabScenery);
   if (code < 0) {
     puts("An error has occured");
     finishGame(&tabBlocs, &tabScenery, &tabButtons);
     exit(EXIT_FAILURE);
   }
-  code = playGame(&tabBlocs, &tabScenery, &tabButtons);
-  if (code < 0) {
-    puts("An error has occured");
-    finishGame(&tabBlocs, &tabScenery, &tabButtons);
-    exit(EXIT_FAILURE);
+
+  while (continuer) {       // While the player asks to restart the game
+    continuer = playGame(&tabBlocs, &tabScenery, &tabButtons);
+    if (continuer < 0) {
+      puts("An error has occured");
+      finishGame(&tabBlocs, &tabScenery, &tabButtons);
+      exit(EXIT_FAILURE);
+    }
+    if (continuer == 1) {
+      code = loadData(&tabBlocs, &tabScenery, &tabButtons, 1);    // Erase the current game data
+      if (code < 0) {
+        puts("An error has occured");
+        finishGame(&tabBlocs, &tabScenery, &tabButtons);
+        exit(EXIT_FAILURE);
+      }
+    }
   }
+
   finishGame(&tabBlocs, &tabScenery, &tabButtons);
   exit(EXIT_SUCCESS);
 }

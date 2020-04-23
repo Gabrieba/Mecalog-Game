@@ -8,7 +8,7 @@
 
 
 // Pause the graphic SDL display
-// Wait the user request to quit the SDL window
+// Wait the user request to quit the SDL window or to clic somewhere
 void pauseSDL(void) {
   int etat = 1;
   SDL_Event event;
@@ -350,8 +350,8 @@ void plateformAnimation(tabsprite tabBlocs, tabplat* tabButtons) {
 void jumpDownAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons, char** inputKey) {
   int code, j; int i = 0; int previousy = -10;
   int time[25] = {10, 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 14, 14, 14, 16, 16, 17, 18, 20, 21, 24, 27, 32, 41, 70};    // To make the jump more harmonic (reverse square function)
-  while (previousy != ((tabScenery->tab)[2]).position.y) {
-    previousy = ((tabScenery->tab)[2]).position.y;
+  while (previousy != ((tabScenery->tab)[ROBOT]).position.y) {
+    previousy = ((tabScenery->tab)[ROBOT]).position.y;
     hitbox_DownY(tabBlocs, tabScenery, 4);
 
     if (i < 24)
@@ -361,11 +361,11 @@ void jumpDownAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabB
     if ((*inputKey)[SDLK_ESCAPE] == 1)
       return;
     if ((*inputKey)[SDLK_LEFT] == 1) {
-      ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_left.bmp");   // Load the robot surface oriented to the left
+      ((tabScenery->tab)[ROBOT]).surface = SDL_LoadBMP("img/robot_left.bmp");   // Load the robot surface oriented to the left
       hitboxLeftX(tabBlocs, tabScenery, tabButtons, inputKey, 4);
     }
     if ((*inputKey)[SDLK_RIGHT] == 1) {
-      ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_right.bmp");   // Load the robot surface oriented to the right
+      ((tabScenery->tab)[ROBOT]).surface = SDL_LoadBMP("img/robot_right.bmp");   // Load the robot surface oriented to the right
       hitboxRightX(tabBlocs, tabScenery, tabButtons, inputKey, 4);
     }
     updateWindow(tabBlocs, tabScenery, tabButtons);
@@ -381,18 +381,18 @@ void jumpDownAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabB
 void jumpUpAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons, char** inputKey) {
   SDL_Event event;
   int i, code;
-  int time[25] = {10, 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 14, 14, 14, 16, 16, 17, 18, 20, 21, 24, 27, 32, 41, 70};    // To make the jump more harmonic (reverse square function)
-  for (i = 0; i < 25; i++) {
+  int time[28] = {10, 10, 11, 11, 11, 11, 12, 12, 12, 13, 13, 14, 14, 14, 16, 16, 17, 18, 20, 21, 24, 27, 32, 41, 70, 70, 70, 70};    // To make the jump more harmonic (reverse square function)
+  for (i = 0; i < 28; i++) {
     hitbox_UpY(tabBlocs, tabScenery, 4);
     inputEvent(inputKey);
     if ((*inputKey)[SDLK_ESCAPE] == 1)
       return;
     if ((*inputKey)[SDLK_LEFT] == 1) {
-      ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_left.bmp");   // Load the robot surface oriented to the left
+      ((tabScenery->tab)[ROBOT]).surface = SDL_LoadBMP("img/robot_left.bmp");   // Load the robot surface oriented to the left
       hitboxLeftX(tabBlocs, tabScenery, tabButtons, inputKey, 4);
     }
     if ((*inputKey)[SDLK_RIGHT] == 1) {
-      ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_right.bmp");   // Load the robot surface oriented to the right
+      ((tabScenery->tab)[ROBOT]).surface = SDL_LoadBMP("img/robot_right.bmp");   // Load the robot surface oriented to the right
       hitboxRightX(tabBlocs, tabScenery, tabButtons, inputKey, 4);
     }
     updateWindow(tabBlocs, tabScenery, tabButtons);
@@ -404,7 +404,9 @@ void jumpUpAnimation(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabBut
 
 
 // Principal player control code
-// Return ERRORVALUE if an error has occured, 0 otherwise
+// Return ERRORVALUE if an error has occured
+//        0 if the player ask to quit the game
+//        1 if the player ask to restart the game
 int playGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons) {
   char* inputKey;
   int code;
@@ -413,28 +415,33 @@ int playGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons) {
     errorMSG("Error while allocating memory to the key array");
     return ERRORVALUE;
   }
-  int continuer = 1;
 
-  ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_right.bmp");            // Load the robot surface oriented to the right
+  ((tabScenery->tab)[ROBOT]).surface = SDL_LoadBMP("img/robot_right.bmp");            // Load the robot surface oriented to the right
   updateWindow(tabBlocs, tabScenery, tabButtons);
 
   SDL_EnableKeyRepeat(10, 10);      // Enable a new event every 10 ms if a key remains pressed
-  while(continuer) {
+  while(1) {
     inputEvent(&inputKey);
-    if (inputKey[SDLK_ESCAPE] == 1)
-      continuer = 0;
+    if (inputKey[SDLK_ESCAPE] == 1) {   // Ask to quit the game
+      free(inputKey);
+      return 0;
+    }
+    if (inputKey[SDLK_r] == 1) {      // Ask to restart the game
+      free(inputKey);
+      return 1;
+    }
     if (inputKey[SDLK_SPACE] == 1) {
       jumpUpAnimation(tabBlocs, tabScenery, tabButtons, &inputKey);
       jumpDownAnimation(tabBlocs, tabScenery, tabButtons, &inputKey);
     }
     if (inputKey[SDLK_LEFT] == 1) {
-      ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_left.bmp");   // Load the robot surface oriented to the left
+      ((tabScenery->tab)[ROBOT]).surface = SDL_LoadBMP("img/robot_left.bmp");   // Load the robot surface oriented to the left
       hitboxLeftX(tabBlocs, tabScenery, tabButtons, &inputKey, 6);
       jumpDownAnimation(tabBlocs, tabScenery, tabButtons, &inputKey);
       plateformAnimation(*tabBlocs, tabButtons);
     }
     if (inputKey[SDLK_RIGHT] == 1) {
-      ((tabScenery->tab)[2]).surface = SDL_LoadBMP("img/robot_right.bmp");   // Load the robot surface oriented to the right
+      ((tabScenery->tab)[ROBOT]).surface = SDL_LoadBMP("img/robot_right.bmp");   // Load the robot surface oriented to the right
       hitboxRightX(tabBlocs, tabScenery, tabButtons, &inputKey, 6);
       jumpDownAnimation(tabBlocs, tabScenery, tabButtons, &inputKey);
       plateformAnimation(*tabBlocs, tabButtons);
@@ -442,6 +449,5 @@ int playGame(tabsprite* tabBlocs, tabsprite* tabScenery, tabplat* tabButtons) {
     updateWindow(tabBlocs, tabScenery, tabButtons);
 
   }
-  free(inputKey);
-  return 0;
+  puts("Should never be here");
 }

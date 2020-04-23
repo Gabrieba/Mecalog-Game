@@ -8,6 +8,7 @@ Commands on your keyboard : \
 **<--** and **-->**  to move \
 **SPACE**            to jump \
 **ECHAP**            to quit the game \
+**r**                to restart the game \
 \
 \
 ### Your contribution

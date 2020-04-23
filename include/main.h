@@ -8,6 +8,10 @@
 #define XDIMGAME 1150     // Horizontal dimension of the global window
 #define HDIMGAME 650      // Vertical dimension of the global window
 
+#define ROBOT 2     // Position of robot sprite in scenery array
+#define DOOR 1      // Postion of door sprite in scenery array
+#define SCREEN 0    // Position of main SDL window sprite in scenery array
+
 #define STYLE_BOLD    0x01
 #define STYLE_OFF     0x00
 #define COLOR_RED     31
